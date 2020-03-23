@@ -182,9 +182,9 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     let data = this.connector.get(callback);
+     return this.connector.get(callback);
+     
 
-     console.log("data is " + JSON.stringify(data));
   }
 
   /**
