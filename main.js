@@ -196,12 +196,11 @@ healthcheck(callback) {
         if(error) {
              callback(data, error);
         } else if(data.body) {
-            const object = JSON.parse(data.body);
-            const transformedData = object.result.map(record => this.transformRecord(record));
-            callback(transformedData, error);
+            let object = JSON.parse(data.body);
+            let transformedObject = object.result.map(record => this.transformRecord(record));
+            callback(transformedObject, error);
         } else {
-          console.error('No body returned');
-          callback(data, 'No body returned');
+          callback(data, 'data does not have body');
         }
      });
   }
@@ -226,18 +225,17 @@ healthcheck(callback) {
          if(error) {
              callback(data, error)
          } else if(data.body) {
-             const record = JSON.parse(data.body);
-             const transformedRecord = this.transformRecord(record.result);
+             let record = JSON.parse(data.body);
+             let transformedRecord = this.transformRecord(record.result);
              callback(transformedRecord, error);
          } else {
-             console.error('No body returned');
-             callback(data, 'No body returned');
+             callback(data, 'data does not have body');
          }
      });
   }
 
   transformRecord(record) {
-      const transformedRecord = {
+      return {
           change_ticket_number: record.number,
           active: record.active,
           priority: record.priority,
@@ -246,7 +244,6 @@ healthcheck(callback) {
           work_end: record.work_end,
           change_ticket_key: record.sys_id
       };
-      return transformedRecord;
   }
 }
 
