@@ -43,7 +43,6 @@
             "type": "object",
             "description": "change management ticket document.",
             "schema": {
-                "type": "object",
                 "title": "changeTicket",
                "$ref": "changeRequest#/definitions/changeTicket"
             }
