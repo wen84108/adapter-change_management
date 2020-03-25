@@ -114,7 +114,11 @@ healthcheck(callback) {
       * healthcheck(), execute it passing the error seen as an argument
       * for the callback's errorMessage parameter.
       */
+      log.error(this.id + " returned an Error: " + error);
       this.emitOffline();
+      if(callback) {
+          callback(result, error);
+      }
    } else {
      /**
       * Write this block.
@@ -126,7 +130,11 @@ healthcheck(callback) {
       * parameter as an argument for the callback function's
       * responseData parameter.
       */
+      log.debug(this.id + " has started");
       this.emitOnline();
+      if(callback) {
+          callback(result, error);
+      }
    }
  });
 }
@@ -184,9 +192,18 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     return this.connector.get(callback);
-     
-
+     this.connector.get((data, error) => { 
+        if(error) {
+             callback(data, error);
+        } else if(data.body) {
+            const object = JSON.parse(data.body);
+            const transformedData = object.result.map(record => this.transformRecord(record));
+            callback(transformedData, error);
+        } else {
+          console.error('No body returned');
+          callback(data, 'No body returned');
+        }
+     });
   }
 
   /**
@@ -205,7 +222,31 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-     this.connector.post(callback);
+     this.connector.post((data, error) => {
+         if(error) {
+             callback(data, error)
+         } else if(data.body) {
+             const record = JSON.parse(data.body);
+             const transformedRecord = this.transformRecord(record.result);
+             callback(transformedRecord, error);
+         } else {
+             console.error('No body returned');
+             callback(data, 'No body returned');
+         }
+     });
+  }
+
+  transformRecord(record) {
+      const transformedRecord = {
+          change_ticket_number: record.number,
+          active: record.active,
+          priority: record.priority,
+          description: record.description,
+          work_start: record.work_start,
+          work_end: record.work_end,
+          change_ticket_key: record.sys_id
+      };
+      return transformedRecord;
   }
 }
 
